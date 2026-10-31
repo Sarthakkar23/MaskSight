@@ -1,0 +1,49 @@
+{
+  "data_root": "/content/mvtec",
+  "categories": [
+    "bottle",
+    "cable",
+    "capsule",
+    "carpet",
+    "grid",
+    "hazelnut",
+    "leather",
+    "metal_nut",
+    "pill",
+    "screw",
+    "tile",
+    "toothbrush",
+    "transistor",
+    "wood",
+    "zipper"
+  ],
+  "resize": 256,
+  "crop": 224,
+  "calib_fraction": 0.1,
+  "quantile": 0.999,
+  "synth_per_image": 3,
+  "seed": 0,
+  "output_dir": "results/main",
+  "save_figures": true,
+  "save_models": false,
+  "model_defaults": {
+    "arch": "wide_resnet50_2",
+    "layers": [
+      "layer2",
+      "layer3"
+    ],
+    "sigma": 4
+  },
+  "runs": [
+    {
+      "name": "patchcore",
+      "model": "patchcore",
+      "coreset_ratio": 0.1
+    },
+    {
+      "name": "padim",
+      "model": "padim",
+      "dims": 550
+    }
+  ]
+}

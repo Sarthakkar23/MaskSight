@@ -1,0 +1,81 @@
+{
+  "data_root": "/content/mvtec",
+  "categories": [
+    "bottle",
+    "hazelnut",
+    "screw",
+    "carpet",
+    "leather"
+  ],
+  "resize": 256,
+  "crop": 224,
+  "calib_fraction": 0.1,
+  "quantile": 0.999,
+  "synth_per_image": 3,
+  "seed": 0,
+  "output_dir": "results/ablation",
+  "save_figures": false,
+  "save_models": false,
+  "model_defaults": {
+    "arch": "wide_resnet50_2",
+    "layers": [
+      "layer2",
+      "layer3"
+    ],
+    "sigma": 4
+  },
+  "runs": [
+    {
+      "name": "sigma0",
+      "model": "patchcore",
+      "coreset_ratio": 0.1,
+      "sigma": 0
+    },
+    {
+      "name": "sigma2",
+      "model": "patchcore",
+      "coreset_ratio": 0.1,
+      "sigma": 2
+    },
+    {
+      "name": "sigma8",
+      "model": "patchcore",
+      "coreset_ratio": 0.1,
+      "sigma": 8
+    },
+    {
+      "name": "coreset1pct",
+      "model": "patchcore",
+      "coreset_ratio": 0.01
+    },
+    {
+      "name": "coreset25pct",
+      "model": "patchcore",
+      "coreset_ratio": 0.25
+    },
+    {
+      "name": "layer2only",
+      "model": "patchcore",
+      "coreset_ratio": 0.1,
+      "layers": [
+        "layer2"
+      ]
+    },
+    {
+      "name": "layers123",
+      "model": "patchcore",
+      "coreset_ratio": 0.1,
+      "layers": [
+        "layer1",
+        "layer2",
+        "layer3"
+      ]
+    },
+    {
+      "name": "resnet18",
+      "model": "patchcore",
+      "coreset_ratio": 0.1,
+      "arch": "resnet18"
+    }
+  ]
+}

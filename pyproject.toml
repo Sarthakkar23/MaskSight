@@ -1,0 +1,48 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "masksight"
+version = "0.1.0"
+description = "Label-free defect segmentation: predict pixel-level anomaly masks from normal images only."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Sarthak Kar" }]
+dependencies = [
+    "torch>=2.1",
+    "torchvision>=0.16",
+    "numpy",
+    "scipy",
+    "scikit-learn",
+    "pillow",
+    "pandas",
+    "matplotlib",
+    "pyyaml",
+    "tqdm",
+    "tabulate",
+]
+
+[project.optional-dependencies]
+data = ["huggingface_hub"]
+demo = ["gradio>=4"]
+serve = ["fastapi", "uvicorn[standard]", "python-multipart"]
+dev = ["pytest", "ruff"]
+
+[project.scripts]
+masksight = "masksight.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["masksight*"]
+
+[tool.ruff]
+line-length = 120
+extend-exclude = ["notebooks/00_prototype.ipynb"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP"]
+ignore = ["E702", "B008", "B905"]  # B008: FastAPI File() idiom
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

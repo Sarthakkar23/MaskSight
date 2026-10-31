@@ -1,0 +1,21 @@
+# Main benchmark: two from-scratch methods on all 15 MVTec AD categories.
+data_root: /content/mvtec
+categories: all
+resize: 256
+crop: 224
+calib_fraction: 0.1     # normal train images held out for threshold calibration
+quantile: 0.999         # baseline threshold: this quantile of normal pixel scores
+synth_per_image: 3      # synthetic defects painted per held-out normal image (SynthCal)
+seed: 0
+output_dir: results/main
+save_figures: true
+save_models: false
+
+model_defaults:
+  arch: wide_resnet50_2
+  layers: [layer2, layer3]
+  sigma: 4
+
+runs:
+  - {name: patchcore, model: patchcore, coreset_ratio: 0.1}
+  - {name: padim, model: padim, dims: 550}
