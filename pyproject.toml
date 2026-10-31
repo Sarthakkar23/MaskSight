@@ -46,3 +46,6 @@ ignore = ["E702", "B008", "B905"]  # B008: FastAPI File() idiom
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["masksight", "serve"]
