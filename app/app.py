@@ -1,4 +1,4 @@
-"""Gradio demo (also the Hugging Face Space entry point).
+"""Local Gradio app for trying the calibrated checkpoints.
 
 Loads every `models/<category>.pt` produced by `masksight fit` and shows heatmap + predicted mask.
 """
@@ -20,7 +20,7 @@ from masksight.models import load_model
 from masksight.viz import overlay
 
 HERE = Path(__file__).parent
-MODEL_DIR = HERE / "models" if (HERE / "models").exists() else HERE.parent / "models"  # Space vs repo layout
+MODEL_DIR = HERE.parent / "models"
 MODELS = {p.stem: load_model(str(p), device="cpu") for p in sorted(MODEL_DIR.glob("*.pt"))}
 TF = image_transform(256, 224, normalize=False)
 torch.set_num_threads(max(1, torch.get_num_threads()))

@@ -122,7 +122,7 @@ the lowest latency. SynthCal's gain holds for every variant, including ResNet-18
 | [`masksight/metrics.py`](masksight/metrics.py) | image & pixel AUROC, **AUPRO** (region-wise, GPU), Dice / IoU / pixel F1 |
 | [`masksight/benchmark.py`](masksight/benchmark.py) | YAML-driven, resumable benchmark (survives Colab disconnects) |
 | [`serve/api.py`](serve/api.py), [`Dockerfile`](Dockerfile) | FastAPI service: `/predict` returns score, verdict and mask |
-| [`app/app.py`](app/app.py) | Gradio demo (Hugging Face Space ready) |
+| [`app/app.py`](app/app.py) | Gradio app for trying models locally |
 | [`tests/`](tests), [CI](.github/workflows/ci.yml) | CPU unit + end-to-end tests, ruff, GitHub Actions |
 | [`notebooks/`](notebooks) | Colab benchmark runner and the original prototype |
 
