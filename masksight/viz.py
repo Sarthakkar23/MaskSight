@@ -53,3 +53,27 @@ def synthetic_panel(images, masks, path: str | Path, n: int = 6):
     fig.tight_layout()
     fig.savefig(path, dpi=110)
     plt.close(fig)
+
+
+def plot_confusion(ax, cm: np.ndarray, title: str, normalize: bool = False,
+                   labels=("Good", "Defective")) -> None:
+    """Draw a 2x2 confusion matrix: rows = true class, columns = predicted class.
+
+    With `normalize`, colours and the big number are row percentages (useful for pixels, where good pixels
+    outnumber defective ones by ~50:1); raw counts are always shown underneath.
+    """
+    rows = cm.sum(1, keepdims=True).clip(min=1)
+    shown = cm / rows if normalize else cm
+    ax.imshow(shown, cmap="Blues", vmin=0, vmax=1 if normalize else max(int(cm.max()), 1))
+    for i in range(2):
+        for j in range(2):
+            frac = cm[i, j] / rows[i, 0]
+            dark = (frac if normalize else cm[i, j] / max(cm.max(), 1)) > 0.5
+            main = f"{100 * frac:.1f}%" if normalize else f"{cm[i, j]:,}"
+            sub = f"{cm[i, j]:,}" if normalize else f"{100 * frac:.1f}% of row"
+            ax.text(j, i - 0.08, main, ha="center", va="center", fontsize=13, fontweight="bold",
+                    color="white" if dark else "#11161D")
+            ax.text(j, i + 0.2, sub, ha="center", va="center", fontsize=8.5, color="white" if dark else "#4A5568")
+    ax.set_xticks([0, 1], [f"Pred. {labels[0]}", f"Pred. {labels[1]}"], fontsize=9)
+    ax.set_yticks([0, 1], [f"True {labels[0]}", f"True {labels[1]}"], fontsize=9, rotation=90, va="center")
+    ax.set_title(title, fontsize=10)

@@ -11,3 +11,4 @@ app/masksight/
 *.zip
 .DS_Store
 dist/
+/presentation/

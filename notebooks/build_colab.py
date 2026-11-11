@@ -45,6 +45,12 @@ code("""
 !masksight benchmark configs/main.yaml
 """)
 code("""
+# Confusion matrices with label-free thresholds: image level (good vs defective) and pixel level (~20 min)
+!python scripts/confusion_matrix.py --data-root /content/mvtec --out results/confusion
+from IPython.display import Image, display
+display(Image("results/confusion/confusion_overall.png"), Image("results/confusion/confusion_per_category.png"))
+""")
+code("""
 # Ablation study on 5 categories (~35 min)
 !masksight benchmark configs/ablation.yaml
 """)

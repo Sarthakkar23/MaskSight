@@ -56,3 +56,12 @@ def test_peak_relative_segment_and_best_alpha():
     assert torch.equal(segment(maps, 0.0, 0.5)[0], segment(maps, 0.0, 0.5)[1])  # strength-invariant
     alpha, dice = best_alpha(maps, gt, floor=0.0)
     assert abs(alpha - 0.5) < 0.05 and dice > 0.95
+
+
+def test_confusion_matrix_counts_and_summary():
+    pred = torch.tensor([1, 1, 0, 0, 1, 0]).bool()
+    true = torch.tensor([1, 0, 0, 1, 1, 0]).bool()
+    cm = metrics.confusion_matrix(pred, true)
+    assert cm.tolist() == [[2, 1], [1, 2]]  # [[TN, FP], [FN, TP]]
+    s = metrics.confusion_summary(cm)
+    assert abs(s["accuracy"] - 4 / 6) < 1e-9 and abs(s["precision"] - 2 / 3) < 1e-9 and abs(s["recall"] - 2 / 3) < 1e-9

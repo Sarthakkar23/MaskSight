@@ -68,3 +68,22 @@ def segmentation_scores(pred: torch.Tensor, masks: torch.Tensor, labels: torch.T
         "pixel_f1": float(2 * tp / (2 * tp + fp + fn + 1e-8)),
         "normal_fp_rate": float(pred[~bad].float().mean()) if (~bad).any() else float("nan"),
     }
+
+
+def confusion_matrix(pred: torch.Tensor, target: torch.Tensor) -> np.ndarray:
+    """2x2 counts [[TN, FP], [FN, TP]] for binary predictions (images or pixels; any shape)."""
+    p, t = pred.bool().flatten(), target.bool().flatten()
+    return np.array([[int((~p & ~t).sum()), int((p & ~t).sum())],
+                     [int((~p & t).sum()), int((p & t).sum())]], dtype=np.int64)
+
+
+def confusion_summary(cm: np.ndarray) -> dict:
+    """Accuracy, precision, recall (sensitivity), specificity and F1 from a [[TN, FP], [FN, TP]] matrix."""
+    (tn, fp), (fn, tp) = cm.astype(float)
+    return {
+        "accuracy": (tp + tn) / max(cm.sum(), 1),
+        "precision": tp / max(tp + fp, 1),
+        "recall": tp / max(tp + fn, 1),
+        "specificity": tn / max(tn + fp, 1),
+        "f1": 2 * tp / max(2 * tp + fp + fn, 1),
+    }
