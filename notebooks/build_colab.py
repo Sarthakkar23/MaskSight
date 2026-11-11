@@ -38,7 +38,8 @@ if not os.path.exists("/content/MaskSight"):
 !pip -q install -e ".[data]"
 """)
 code("""
-!masksight download --root /content/mvtec
+# ~5 GB; progress goes to a log file because thousands of progress lines can freeze the browser tab
+!masksight download --root /content/mvtec > /content/download.log 2>&1 && echo "download done" && ls /content/mvtec
 """)
 code("""
 # Main benchmark (~35 min on a T4)
