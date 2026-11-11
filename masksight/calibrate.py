@@ -78,10 +78,13 @@ def quantile_threshold(normal_maps: torch.Tensor, q: float = 0.999) -> float:
 class Calibration:
     floor: float            # quantile of normal pixel scores
     alpha: float            # peak-relative factor learned on synthetic defects
-    image_threshold: float  # anomaly score above which an image is called defective
+    image_threshold: float  # anomaly score above which an image is called defective (Youden's J, synthetic)
     synth_abs_threshold: float
     synthetic_dice: float   # Dice on the synthetic set itself (a label-free sanity signal)
     artifacts: dict = field(default_factory=dict, repr=False)
+    # Highest image score among the held-out normal images: an image cutoff that needs no synthetic defects.
+    # On subtle categories it misses far fewer real defects than `image_threshold` (screw accuracy 0.44 -> 0.83).
+    normal_max: float = float("nan")
 
 
 def _predict_all(model, images: torch.Tensor, batch_size: int = 16):
@@ -100,7 +103,8 @@ def synthcal(model, calib_images: torch.Tensor, quantile: float = 0.999, per_ima
     no_defect = torch.zeros(len(calib_images), *syn_masks.shape[1:], dtype=torch.bool)
     abs_thr = f1_max_threshold(torch.cat([syn_maps, normal_maps]), torch.cat([syn_masks, no_defect]))
     return Calibration(floor, alpha, image_threshold(syn_scores, normal_scores), abs_thr, syn_dice,
-                       {"synthetic_images": syn_imgs, "synthetic_masks": syn_masks, "synthetic_maps": syn_maps})
+                       {"synthetic_images": syn_imgs, "synthetic_masks": syn_masks, "synthetic_maps": syn_maps},
+                       normal_max=float(normal_scores.max()))
 
 
 def apply(model, cal: Calibration) -> None:

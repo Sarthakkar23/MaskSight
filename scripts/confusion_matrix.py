@@ -4,7 +4,9 @@
 
 For every category the detector is fit on normal images, calibrated with SynthCal (no defect labels), and
 then applied to the test set:
-  * image level: an image is called "Defective" when its anomaly score exceeds the calibrated image threshold
+  * image level: an image is called "Defective" when its anomaly score exceeds a label-free cutoff:
+      normal-max (default) = the highest score among the held-out normal images
+      synthetic            = Youden's J on synthetic defects vs normals (too strict on subtle defects)
   * pixel level: a pixel is "Defective" when it is inside the predicted SynthCal mask
 Counts are appended to `counts.csv` after each category (re-running skips finished ones), then plotted.
 """
@@ -34,10 +36,12 @@ def run_category(cat: str, a) -> dict:
     extra = {"coreset_ratio": a.coreset_ratio} if a.model == "patchcore" else {}
     model = build_model(a.model, arch=a.arch, layers=("layer2", "layer3"), sigma=4.0, **extra)
     model.fit(ImageSet(train))
-    apply(model, synthcal(model, _stack(ImageSet(calib)), seed=a.seed, object_category=cat not in TEXTURES))
+    cal = synthcal(model, _stack(ImageSet(calib)), seed=a.seed, object_category=cat not in TEXTURES)
+    apply(model, cal)
+    image_thr = cal.normal_max if a.image_threshold == "normal-max" else cal.image_threshold
     maps, scores, masks, labels, _ = model.predict_dataset(ImageSet(test))
     row = {"category": cat}
-    for level, cm in (("image", confusion_matrix(scores > model.image_threshold, labels.bool())),
+    for level, cm in (("image", confusion_matrix(scores > image_thr, labels.bool())),
                       ("pixel", confusion_matrix(model.segment(maps), masks))):
         row.update({f"{level}_{k}": int(v) for k, v in zip(("tn", "fp", "fn", "tp"), cm.ravel())})
     del model
@@ -90,6 +94,7 @@ def main(argv=None):
     p.add_argument("--arch", default="wide_resnet50_2")
     p.add_argument("--coreset-ratio", type=float, default=0.1)
     p.add_argument("--categories", nargs="*", default=MVTEC_CATEGORIES)
+    p.add_argument("--image-threshold", default="normal-max", choices=["normal-max", "synthetic"])
     p.add_argument("--seed", type=int, default=0)
     a = p.parse_args(argv)
 
