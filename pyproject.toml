@@ -27,8 +27,9 @@ dependencies = [
 [project.optional-dependencies]
 data = ["huggingface_hub"]
 demo = ["gradio>=4"]
-serve = ["fastapi", "uvicorn[standard]", "python-multipart"]
-dev = ["pytest", "ruff"]
+serve = ["fastapi", "uvicorn[standard]", "python-multipart", "sqlalchemy>=2"]
+postgres = ["psycopg[binary]"]
+dev = ["pytest", "ruff", "httpx", "fastapi", "python-multipart", "sqlalchemy>=2"]
 
 [project.scripts]
 masksight = "masksight.cli:main"

@@ -8,6 +8,7 @@ RUN pip install --no-cache-dir ".[serve]"
 RUN python -c "import torchvision; torchvision.models.get_model('wide_resnet50_2', weights='DEFAULT')"
 COPY serve ./serve
 COPY models ./models
-ENV MASKSIGHT_MODELS=/app/models
+ENV MASKSIGHT_MODELS=/app/models \
+    MASKSIGHT_STORAGE=/app/storage
 EXPOSE 8000
 CMD ["uvicorn", "serve.api:app", "--host", "0.0.0.0", "--port", "8000"]

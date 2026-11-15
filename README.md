@@ -1,6 +1,7 @@
 # MaskSight
 
 [![ci](https://github.com/Sarthakkar23/MaskSight/actions/workflows/ci.yml/badge.svg)](https://github.com/Sarthakkar23/MaskSight/actions/workflows/ci.yml)
+[![mobile](https://github.com/Sarthakkar23/MaskSight/actions/workflows/mobile.yml/badge.svg)](https://github.com/Sarthakkar23/MaskSight/actions/workflows/mobile.yml)
 ![python](https://img.shields.io/badge/python-3.10%2B-blue) ![license](https://img.shields.io/badge/license-MIT-green)
 
 **Label-free defect segmentation.** MaskSight learns what a *good* product looks like from normal images
@@ -121,7 +122,8 @@ the lowest latency. SynthCal's gain holds for every variant, including ResNet-18
 | [`masksight/calibrate.py`](masksight/calibrate.py) | quantile / synth-abs / **SynthCal** / oracle thresholds, image threshold via Youden's J |
 | [`masksight/metrics.py`](masksight/metrics.py) | image & pixel AUROC, **AUPRO** (region-wise, GPU), Dice / IoU / pixel F1 |
 | [`masksight/benchmark.py`](masksight/benchmark.py) | YAML-driven, resumable benchmark (survives Colab disconnects) |
-| [`serve/api.py`](serve/api.py), [`Dockerfile`](Dockerfile) | FastAPI service: `/predict` returns score, verdict and mask |
+| [`serve/api.py`](serve/api.py), [`serve/db.py`](serve/db.py), [`Dockerfile`](Dockerfile) | FastAPI service: `/predict` returns score, verdict and mask; every inspection is stored (SQLite or PostgreSQL) and listed by `/inspections` |
+| [`mobile/`](mobile) | **MaskSight Mobile**: React Native + TypeScript app (Expo) for iOS, Android and web |
 | [`app/app.py`](app/app.py) | Gradio app for trying models locally |
 | [`tests/`](tests), [CI](.github/workflows/ci.yml) | CPU unit + end-to-end tests, ruff, GitHub Actions |
 | [`notebooks/`](notebooks) | Colab benchmark runner and the original prototype |
@@ -148,8 +150,37 @@ Serve and demo:
 ```bash
 MASKSIGHT_MODELS=models uvicorn serve.api:app --port 8000
 curl -F image=@part.png "localhost:8000/predict?category=bottle"
+curl localhost:8000/inspections
 python app/app.py
 ```
+
+## MaskSight Mobile
+
+![MaskSight Mobile: choose a product, inspect a photo, browse history](docs/mobile.png)
+
+A React Native + TypeScript app ([`mobile/`](mobile), built with Expo) on top of the API, so one codebase runs
+on iOS, Android and the web. Photograph or pick a part, and the app uploads it, shows the predicted defect mask
+over the photo with an opacity slider, and keeps a history of every inspection.
+
+| Screen | What it does |
+|---|---|
+| Home | Lists the loaded models from `GET /categories` |
+| Inspect | Camera or gallery (`expo-image-picker`), multipart upload to `POST /predict` |
+| Result | Photo with the mask on top, opacity slider, score vs. cutoff, defect area, model time |
+| History | `GET /inspections`, pull to refresh; tap a row to reopen it from `GET /inspections/{id}` |
+
+Every screen has loading, error ("server unreachable", with retry) and empty states. API responses are typed
+and checked at runtime; the app is strict TypeScript, tested with Jest and React Native Testing Library, and CI
+runs `tsc`, `jest` and a web build ([workflow](.github/workflows/mobile.yml)).
+
+```bash
+MASKSIGHT_CATEGORIES=bottle,hazelnut uvicorn serve.api:app --host 0.0.0.0 --port 8000
+cd mobile && npm install
+npx expo start          # press w for the browser, or scan the QR code with Expo Go on a phone
+```
+
+On a phone, Expo Go calls port 8000 on the computer running Expo, so keep both on the same Wi-Fi. To point the
+app at a deployed API instead, set `EXPO_PUBLIC_API_URL=https://your-api.example.com`.
 
 ## Limitations
 

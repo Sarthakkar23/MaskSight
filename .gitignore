@@ -12,3 +12,7 @@ app/masksight/
 .DS_Store
 dist/
 /presentation/
+/storage/
+mobile/node_modules/
+mobile/.expo/
+mobile/dist/
